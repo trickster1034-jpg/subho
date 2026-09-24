@@ -4,139 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Happy Birthday Subho!</title>
-    <!-- Cinematic & Pixel Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Permanent+Marker&family=Press+Start+2P&display=swap" rel="stylesheet">
-    
-    <style>
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: #050505; color: white; overflow: hidden; 
-            text-align: center; user-select: none; touch-action: none;
-        }
-
-        /* HD Cinematic Dr. Strange Portal Canvas */
-        #multiverse-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; mix-blend-mode: screen; }
-
-        .scene {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; display: none; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .active-scene { display: flex; }
-
-        /* Stylish Cinematic Texts */
-        h1 {
-            font-family: 'Cinzel', serif; font-size: 3.5em; color: #ffae00;
-            text-shadow: 0 0 20px #ff6600, 0 0 40px #ff0000; z-index: 15; margin-bottom: 20px;
-        }
-        .threat {
-            font-family: 'Permanent Marker', cursive; font-size: 2em; color: #ff2a2a;
-            text-shadow: 2px 2px 5px black, 0 0 15px red; z-index: 15;
-            transform: rotate(-3deg); margin-top: 20px;
-        }
-
-        /* --- SCENE 1: CAKE --- */
-        .cake-container { position: relative; width: 200px; height: 150px; margin-top: 30px; }
-        .cake { width: 200px; height: 100px; background: #f4c2c2; border-radius: 10px 10px 0 0; position: absolute; bottom: 0; border: 4px solid #fff; box-shadow: 0 0 30px rgba(255,255,255,0.5); }
-        .candle { width: 10px; height: 40px; background: repeating-linear-gradient(45deg, white, white 5px, red 5px, red 10px); position: absolute; bottom: 100px; border-radius: 5px; }
-        .c1 { left: 50px; } .c2 { left: 95px; } .c3 { left: 140px; }
-        .flame { width: 15px; height: 25px; background: #ff9d00; border-radius: 50% 50% 20% 20%; position: absolute; top: -30px; left: -2px; animation: flicker 0.1s infinite alternate; box-shadow: 0 0 20px #ff9d00; }
-        .extinguished { display: none; }
-        #mic-instruction { font-family: 'Segoe UI', sans-serif; font-size: 1.5em; margin-top: 30px; font-weight: bold; color: #00ffff; text-shadow: 0 0 10px #00ffff; }
-        
-        @keyframes flicker { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.2); opacity: 0.8; } }
-
-        /* --- SCENE 2: FLOATING TEXT --- */
-        .floating-text { position: absolute; animation: floatCinematic 4s infinite ease-in-out alternate; }
-        .floating-threat { position: absolute; animation: floatCinematic2 5s infinite ease-in-out alternate; }
-        @keyframes floatCinematic { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-20px) scale(1.05); } }
-        @keyframes floatCinematic2 { 0% { transform: translateY(0) rotate(-3deg); } 100% { transform: translateY(20px) rotate(1deg); } }
-        
-        .next-btn {
-            position: absolute; bottom: 10%; padding: 15px 40px; font-size: 20px; font-family: 'Cinzel', serif; cursor: pointer;
-            background: transparent; color: #ffae00; border: 2px solid #ffae00; box-shadow: 0 0 15px #ffae00;
-            font-weight: bold; z-index: 100; border-radius: 5px; transition: 0.3s;
-        }
-        .next-btn:active { background: #ffae00; color: black; }
-
-        /* --- SCENE 3: 3D SPHERE & GLOVE --- */
-        .curtain-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; z-index: 50; pointer-events: none; }
-        .curtain { width: 50%; height: 100%; background: #4a0000; border: 2px solid gold; transition: transform 2s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: inset 0 0 100px black; }
-        .curtain.left { transform-origin: left; } .curtain.right { transform-origin: right; }
-        .open .left { transform: translateX(-100%); } .open .right { transform: translateX(100%); }
-
-        .scene3d { perspective: 1000px; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-        .carousel { width: 250px; height: 250px; position: relative; transform-style: preserve-3d; transition: transform 0.1s; }
-        
-        /* The Center Glove */
-        .center-glove {
-            position: absolute; top: 50%; left: 50%; width: 120px; height: 120px;
-            transform: translate(-50%, -50%) translateZ(0px); /* Center anchor */
-            filter: drop-shadow(0 0 20px gold); z-index: -1;
-        }
-
-        .carousel img.photo {
-            position: absolute; width: 250px; height: 250px; object-fit: cover;
-            border: 4px solid gold; border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.9);
-            backface-visibility: visible;
-        }
-        .carousel img.photo:nth-of-type(1) { transform: rotateY(0deg) translateZ(220px); }
-        .carousel img.photo:nth-of-type(2) { transform: rotateY(120deg) translateZ(220px); }
-        .carousel img.photo:nth-of-type(3) { transform: rotateY(240deg) translateZ(220px); }
-        .drag-hint { position: absolute; top: 10%; color: #00ffff; font-family: 'Segoe UI', sans-serif; font-size: 1.2em; font-weight: bold; text-shadow: 0 0 10px #00ffff; }
-
-        /* --- SCENE 4: AMONG US MINIGAME EXACT REPLICA --- */
-        #among-us-bg { position: absolute; width: 100%; height: 100%; background: #111 url('https://www.transparenttextures.com/patterns/stardust.png'); z-index: -1; }
-        
-        /* Green targeting overlay like the image */
-        #targeting-screen {
-            position: relative; width: 85%; max-width: 500px; height: 60vh;
-            background: rgba(0, 255, 0, 0.15); /* Green translucent background */
-            border: 2px solid rgba(0, 255, 0, 0.4);
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-            box-shadow: inset 0 0 50px rgba(0,255,0,0.2);
-        }
-
-        /* Corner Brackets */
-        .corner { position: absolute; width: 30px; height: 30px; border: 4px solid #0f0; }
-        .tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
-        .tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
-        .bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
-        .br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
-
-        /* Center Crosshair */
-        .crosshair {
-            position: absolute; width: 40px; height: 40px;
-            border: 2px solid rgba(0, 255, 0, 0.6);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .crosshair::before { content: ''; width: 4px; height: 15px; background: rgba(0, 255, 0, 0.6); position: absolute; top: -10px; }
-        .crosshair::after { content: ''; width: 15px; height: 4px; background: rgba(0, 255, 0, 0.6); position: absolute; left: -10px; }
-
-        /* Asteroids styled like the jagged rocks */
-        .asteroid {
-            position: absolute; width: 60px; height: 60px; background: #5a5a5a;
-            clip-path: polygon(30% 0%, 70% 10%, 100% 40%, 80% 90%, 40% 100%, 0% 70%, 10% 20%);
-            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.8); cursor: crosshair;
-        }
-
-        /* Pixel Text at bottom left matching image */
-        .destroyed-text {
-            position: absolute; bottom: 20px; left: 20px;
-            font-family: 'Press Start 2P', monospace; font-size: 16px; color: white;
-            text-shadow: 2px 2px 0 #000; z-index: 100;
-        }
-        
-        #chat-box { position: absolute; bottom: 5%; width: 100%; text-align: center; }
-        .chat-text { color: #fff; font-family: 'Press Start 2P', monospace; font-size: 18px; text-shadow: 2px 2px 0 #000; }
-
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Cinematic Canvas Engine -->
     <canvas id="multiverse-canvas"></canvas>
+    
+    <div id="jumpscare"></div>
 
-    <!-- SCENE 1: CAKE -->
     <div id="scene-1" class="scene active-scene">
         <h1>Subho, Blow the Candles!</h1>
         <div class="cake-container">
@@ -148,26 +24,22 @@
         <div id="mic-instruction">🎤 Blow gently into your mic!</div>
     </div>
 
-    <!-- SCENE 2: FLOATING TEXT -->
     <div id="scene-2" class="scene">
+        <div style="font-family: 'Segoe UI'; font-size:1.2em; color: #aaa; position: absolute; top: 10%;">[Click anywhere in background to warp dimensions]</div>
         <h1 class="floating-text" style="top: 25%;">Happy 69th Birthday,<br>Programmer Subho! 🎂</h1>
         <div class="threat floating-threat" style="top: 55%;">"Khawabi Nahole tor Nunku viral kore debo"</div>
         <button class="next-btn" onclick="goToScene3()">Next Realm ➡️</button>
     </div>
 
-    <!-- SCENE 3: 3D PHOTO SPHERE WITH GLOVE -->
     <div id="scene-3" class="scene">
         <div class="curtain-container" id="curtain-container">
             <div class="curtain left"></div>
             <div class="curtain right"></div>
         </div>
-        <div class="drag-hint">👈 Swipe to Rotate Realm 👉</div>
-        <div class="scene3d">
+        <div class="drag-hint">👈 Drag Horizontally to Rotate 👉</div>
+        <div class="scene3d" id="drag-area">
             <div class="carousel" id="carousel">
-                <!-- Center Glove (Uses a free transparent gauntlet image) -->
                 <img src="https://i.postimg.cc/T1917fWb/gauntlet.png" class="center-glove" alt="Glove" onerror="this.style.display='none'">
-                
-                <!-- Photos -->
                 <img src="https://i.postimg.cc/mhRqxXxR/20251223-150134.jpg" class="photo" alt="Img 1">
                 <img src="https://i.postimg.cc/K4FVXqXR/20251223-150152.jpg" class="photo" alt="Img 2">
                 <img src="https://i.postimg.cc/14PTxCx8/20251223-150306.jpg" class="photo" alt="Img 3">
@@ -176,200 +48,28 @@
         <button class="next-btn" onclick="goToScene4()">Start Task ➡️</button>
     </div>
 
-    <!-- SCENE 4: AMONG US MINIGAME -->
     <div id="scene-4" class="scene">
-        <div id="among-us-bg"></div>
+        <div id="game-bg"></div>
         
-        <!-- Green Targeting Overlay -->
-        <div id="targeting-screen">
-            <div class="corner tl"></div>
-            <div class="corner tr"></div>
-            <div class="corner bl"></div>
-            <div class="corner br"></div>
-            
-            <!-- Crosshair -->
+        <svg id="targeting-svg">
+            <line id="line-tl" class="target-line" />
+            <line id="line-tr" class="target-line" />
+            <line id="line-bl" class="target-line" />
+            <line id="line-br" class="target-line" />
+        </svg>
+
+        <div id="target-square">
+            <div class="corner tl"></div><div class="corner tr"></div>
+            <div class="corner bl"></div><div class="corner br"></div>
             <div class="crosshair"></div>
-
-            <!-- Asteroid Game Area -->
-            <div id="game-area" style="position: absolute; width: 100%; height: 100%;"></div>
-            
-            <!-- Pixel Destroyed Text -->
-            <div class="destroyed-text">Destroyed: <span id="score">0</span></div>
         </div>
 
-        <div id="chat-box">
-            <div class="chat-text">"Among Us khelbi na sala?"</div>
-        </div>
+        <div id="interactive-layer"></div>
+        
+        <div class="destroyed-text">Destroyed: <span id="score">0</span></div>
+        <div class="chat-text">"Among Us khelbi na sala?"</div>
     </div>
 
-    <script>
-        // --- DR STRANGE MULTIVERSE PORTAL (HD CGI VFX) ---
-        const canvas = document.getElementById('multiverse-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
-
-        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
-
-        class Spark {
-            constructor() {
-                this.angle = Math.random() * Math.PI * 2;
-                this.radius = 120 + Math.random() * 50; // Portal ring size
-                this.x = width/2 + Math.cos(this.angle) * this.radius;
-                this.y = height/2 + Math.sin(this.angle) * this.radius;
-                // Swirling motion like the Sling Ring
-                this.vx = -Math.sin(this.angle) * (Math.random() * 5 + 2);
-                this.vy = Math.cos(this.angle) * (Math.random() * 5 + 2);
-                this.life = 1;
-                this.decay = Math.random() * 0.03 + 0.01;
-                this.size = Math.random() * 3 + 1;
-                this.color = Math.random() > 0.5 ? '#ff7b00' : '#ffea00'; // Orange & Yellow sparks
-            }
-            update() {
-                this.x += this.vx; this.y += this.vy;
-                this.life -= this.decay;
-            }
-            draw() {
-                ctx.globalAlpha = Math.max(0, this.life);
-                ctx.fillStyle = this.color;
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
-            }
-        }
-
-        function animatePortal() {
-            ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; // Creates motion trails
-            ctx.fillRect(0, 0, width, height);
-            
-            // Generate new sparks
-            for(let i=0; i<10; i++) particles.push(new Spark());
-            
-            particles = particles.filter(p => p.life > 0);
-            particles.forEach(p => { p.update(); p.draw(); });
-            
-            requestAnimationFrame(animatePortal);
-        }
-        animatePortal();
-
-        // --- SCENE 1: SUPER SENSITIVE MIC LOGIC ---
-        let micActive = false;
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
-            let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            let analyser = audioContext.createAnalyser();
-            let microphone = audioContext.createMediaStreamSource(stream);
-            microphone.connect(analyser); analyser.fftSize = 256;
-            let dataArray = new Uint8Array(analyser.frequencyBinCount);
-            
-            function detectBlow() {
-                analyser.getByteFrequencyData(dataArray);
-                let average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-                
-                // THRESHOLD LOWERED TO 25 (Ultra sensitive, blows out easily)
-                if (average > 25) extinguishCandles(); 
-                else requestAnimationFrame(detectBlow);
-            }
-            detectBlow();
-        }).catch(() => {
-            document.getElementById('mic-instruction').innerText = "Mic blocked! Tap cake to blow.";
-            document.querySelector('.cake-container').addEventListener('click', extinguishCandles);
-        });
-
-        function extinguishCandles() {
-            if(micActive) return; micActive = true;
-            document.querySelectorAll('.flame').forEach(f => f.classList.add('extinguished'));
-            document.getElementById('mic-instruction').innerText = "Portal Opening... 🌌";
-            setTimeout(() => {
-                document.getElementById('scene-1').classList.remove('active-scene');
-                document.getElementById('scene-2').classList.add('active-scene');
-            }, 2000);
-        }
-
-        // --- SCENE NAVIGATION ---
-        function goToScene3() {
-            document.getElementById('scene-2').classList.remove('active-scene');
-            document.getElementById('scene-3').classList.add('active-scene');
-            setTimeout(() => { document.getElementById('curtain-container').classList.add('open'); }, 500);
-        }
-        function goToScene4() {
-            document.getElementById('scene-3').classList.remove('active-scene');
-            document.getElementById('scene-4').classList.add('active-scene');
-            startAmongUsGame();
-        }
-
-        // --- SCENE 3: 3D DRAG CAROUSEL ---
-        const carousel = document.getElementById('carousel');
-        let isDragging = false, startX, currentRotate = 0;
-        
-        function handleMove(clientX) {
-            if(!isDragging) return;
-            let delta = clientX - startX;
-            carousel.style.transform = `rotateY(${currentRotate + delta}deg)`;
-        }
-        function handleEnd(clientX) {
-            if(!isDragging) return; isDragging = false;
-            currentRotate += (clientX - startX);
-        }
-
-        document.getElementById('scene-3').addEventListener('touchstart', (e) => { isDragging = true; startX = e.touches[0].clientX; });
-        document.getElementById('scene-3').addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX));
-        document.getElementById('scene-3').addEventListener('touchend', (e) => handleEnd(e.changedTouches[0].clientX));
-
-        document.getElementById('scene-3').addEventListener('mousedown', (e) => { isDragging = true; startX = e.clientX; });
-        document.getElementById('scene-3').addEventListener('mousemove', (e) => handleMove(e.clientX));
-        document.getElementById('scene-3').addEventListener('mouseup', (e) => handleEnd(e.clientX));
-
-        // --- SCENE 4: AMONG US MINIGAME ---
-        let gameScore = 0; let gameActive = false;
-        function startAmongUsGame() { gameActive = true; spawnAsteroid(); }
-        
-        function spawnAsteroid() {
-            if(!gameActive) return;
-            const area = document.getElementById('game-area');
-            const ast = document.createElement('div');
-            ast.className = 'asteroid';
-            
-            // Random start position
-            let startXPos = Math.random() * (area.clientWidth - 60);
-            ast.style.left = startXPos + 'px';
-            ast.style.top = '-60px';
-            area.appendChild(ast);
-
-            let posY = -60;
-            let posX = startXPos;
-            let speedY = Math.random() * 3 + 2;
-            let speedX = (Math.random() - 0.5) * 4; // Diagonal movement
-            let rotation = 0;
-
-            let interval = setInterval(() => {
-                posY += speedY; posX += speedX; rotation += 2;
-                ast.style.top = posY + 'px';
-                ast.style.left = posX + 'px';
-                ast.style.transform = `rotate(${rotation}deg)`;
-                
-                if(posY > area.clientHeight || posX < -60 || posX > area.clientWidth) { 
-                    clearInterval(interval); ast.remove(); 
-                }
-            }, 20);
-
-            // Destroy logic
-            const destroy = (e) => {
-                e.preventDefault(); e.stopPropagation();
-                clearInterval(interval);
-                ast.style.background = '#ff4444'; // Flash red before disappearing
-                setTimeout(() => ast.remove(), 100);
-                gameScore++;
-                document.getElementById('score').innerText = gameScore;
-                if(gameScore >= 10) {
-                    gameActive = false;
-                    document.querySelector('.chat-text').innerText = "TASK COMPLETED! SUS ඞ";
-                    document.querySelector('.chat-text').style.color = "#0f0";
-                }
-            };
-            ast.addEventListener('mousedown', destroy);
-            ast.addEventListener('touchstart', destroy);
-
-            if(gameScore < 10) { setTimeout(spawnAsteroid, Math.random() * 800 + 400); }
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
