@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Subho!</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #000; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; text-align: center; user-select: none; touch-action: none;
+        }
+
+        /* Multiverse Canvas */
+        #multiverse-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; cursor: crosshair; }
+
+        /* Scene Container */
+        .scene {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10; display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .active-scene { display: flex; }
+
+        /* Shared Text Styles */
+        h1, h2, .threat {
+            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0px 0px 20px rgba(255,255,255,0.8);
+            z-index: 15;
+        }
+
+        /* --- SCENE 1: CAKE --- */
+        .cake-container { position: relative; width: 200px; height: 150px; margin-top: 50px; }
+        .cake { width: 200px; height: 100px; background: #f4c2c2; border-radius: 10px 10px 0 0; position: absolute; bottom: 0; border: 4px solid #fff; }
+        .candle { width: 10px; height: 40px; background: repeating-linear-gradient(45deg, white, white 5px, red 5px, red 10px); position: absolute; bottom: 100px; border-radius: 5px; }
+        .c1 { left: 50px; } .c2 { left: 95px; } .c3 { left: 140px; }
+        .flame { width: 15px; height: 25px; background: #ff9d00; border-radius: 50% 50% 20% 20%; position: absolute; top: -30px; left: -2px; animation: flicker 0.1s infinite alternate; }
+        .extinguished { display: none; }
+        #mic-instruction { font-size: 1.5em; margin-top: 30px; font-weight: bold; }
+        #blow-btn-fallback { margin-top: 20px; padding: 10px 20px; font-size: 16px; background: #333; color: white; border: 2px solid white; cursor: pointer; display: none; z-index: 20; }
+        
+        @keyframes flicker { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.1); opacity: 0.8; } }
+
+        /* --- SCENE 2: FLOATING TEXT --- */
+        .floating-text {
+            font-size: 2.5em; color: #ffd700; font-weight: bold; position: absolute;
+            animation: floatMadness 4s infinite ease-in-out alternate;
+        }
+        .floating-threat {
+            font-size: 1.8em; color: #ff4c4c; font-weight: bold; position: absolute;
+            animation: floatMadness2 5s infinite ease-in-out alternate;
+        }
+        @keyframes floatMadness {
+            0% { transform: translate(0, 0) rotate(-5deg); }
+            50% { transform: translate(30px, -40px) rotate(5deg) scale(1.1); }
+            100% { transform: translate(-30px, 20px) rotate(-2deg) scale(0.9); }
+        }
+        @keyframes floatMadness2 {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-40px, 30px) scale(1.05); }
+            100% { transform: translate(20px, -30px) scale(0.95); }
+        }
+        .next-btn {
+            position: absolute; bottom: 10%; padding: 15px 30px; font-size: 20px; cursor: pointer;
+            background: white; color: black; border: none; font-weight: bold; z-index: 100;
+        }
+
+        /* --- SCENE 3: 3D SPHERE & CURTAINS --- */
+        .curtain-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; z-index: 50; pointer-events: none; }
+        .curtain { width: 50%; height: 100%; background: #8b0000; transition: transform 2s ease-in-out; }
+        .curtain.left { transform-origin: left; } .curtain.right { transform-origin: right; }
+        .open .left { transform: translateX(-100%); } .open .right { transform: translateX(100%); }
+
+        .scene3d { perspective: 1000px; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .carousel { width: 200px; height: 200px; position: relative; transform-style: preserve-3d; transition: transform 0.1s; }
+        .carousel img {
+            position: absolute; width: 200px; height: 200px; object-fit: cover;
+            border: 4px solid gold; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+        /* Positioning 3 images in a triangle/sphere layout */
+        .carousel img:nth-child(1) { transform: rotateY(0deg) translateZ(180px); }
+        .carousel img:nth-child(2) { transform: rotateY(120deg) translateZ(180px); }
+        .carousel img:nth-child(3) { transform: rotateY(240deg) translateZ(180px); }
+        .drag-hint { position: absolute; top: 15%; color: white; font-size: 1.2em; font-weight: bold; }
+
+        /* --- SCENE 4: AMONG US MINIGAME --- */
+        #game-area { width: 100%; height: 70%; position: relative; overflow: hidden; cursor: crosshair; }
+        .asteroid {
+            position: absolute; width: 50px; height: 50px; background: #666; border-radius: 40% 60% 70% 30%;
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.5); cursor: crosshair;
+        }
+        #chat-box {
+            width: 100%; height: 30%; background: rgba(0,0,0,0.8); border-top: 3px solid #555;
+            display: flex; align-items: center; justify-content: center; position: absolute; bottom: 0; z-index: 100;
+        }
+        .chat-text { color: white; font-size: 24px; font-weight: bold; font-family: monospace; }
+        .score { position: absolute; top: 20px; left: 20px; font-size: 24px; font-weight: bold; z-index: 100; color: #0f0;}
+
+    </style>
+</head>
+<body>
+
+    <canvas id="multiverse-canvas"></canvas>
+
+    <!-- SCENE 1: CAKE -->
+    <div id="scene-1" class="scene active-scene">
+        <h1 style="margin-bottom: 20px;">Subho, Blow the Candles!</h1>
+        <div class="cake-container">
+            <div class="candle c1"><div class="flame"></div></div>
+            <div class="candle c2"><div class="flame"></div></div>
+            <div class="candle c3"><div class="flame"></div></div>
+            <div class="cake"></div>
+        </div>
+        <div id="mic-instruction">🎤 Blow into mic!</div>
+        <button id="blow-btn-fallback" onclick="extinguishCandles()">Mic not working? Click to blow.</button>
+    </div>
+
+    <!-- SCENE 2: FLOATING TEXT -->
+    <div id="scene-2" class="scene">
+        <div class="floating-text" style="top: 30%;">Happy 69th Birthday,<br>Programmer Subho! 🎂</div>
+        <div class="floating-threat" style="top: 55%;">"Khawabi Nahole tor Nunku viral kore debo"</div>
+        <button class="next-btn" onclick="goToScene3()">Click me mf ➡️</button>
+    </div>
+
+    <!-- SCENE 3: 3D PHOTO SPHERE -->
+    <div id="scene-3" class="scene">
+        <div class="curtain-container" id="curtain-container">
+            <div class="curtain left"></div>
+            <div class="curtain right"></div>
+        </div>
+        <div class="drag-hint">👈 Swipe to Rotate Photos 👉</div>
+        <div class="scene3d">
+            <div class="carousel" id="carousel">
+                <img src="https://i.postimg.cc/mhRqxXxR/20251223-150134.jpg" alt="Img 1">
+                <img src="https://i.postimg.cc/K4FVXqXR/20251223-150152.jpg" alt="Img 2">
+                <img src="https://i.postimg.cc/14PTxCx8/20251223-150306.jpg" alt="Img 3">
+            </div>
+        </div>
+        <button class="next-btn" onclick="goToScene4()">Next ➡️</button>
+    </div>
+
+    <!-- SCENE 4: AMONG US MINIGAME -->
+    <div id="scene-4" class="scene">
+        <div class="score">Asteroids Destroyed: <span id="score">0</span>/10</div>
+        <div id="game-area"></div>
+        <div id="chat-box">
+            <div class="chat-text">"Among Us khelbi na sala?"</div>
+        </div>
+    </div>
+
+    <script>
+        // --- MULTIVERSE BACKGROUND ENGINE ---
+        const canvas = document.getElementById('multiverse-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, time = 0, currentDimension = 0;
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        window.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON' && !e.target.closest('#scene-4')) {
+                currentDimension = (currentDimension + 1) % 4; time = 0;
+            }
+        });
+
+        function drawDimension() {
+            if(currentDimension===0) { // Colorful
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; ctx.fillRect(0,0,width,height);
+                for(let i=0; i<30; i++) {
+                    ctx.beginPath();
+                    ctx.arc(width/2 + Math.sin(time*0.02 + i)*width/3, height/2 + Math.cos(time*0.03 + i*2)*height/3, 20 + Math.sin(time*0.1 + i)*10, 0, Math.PI*2);
+                    ctx.fillStyle = `hsl(${(time + i*10) % 360}, 100%, 50%)`; ctx.fill();
+                }
+            } else if(currentDimension===1) { // BW Grid
+                ctx.fillStyle = 'black'; ctx.fillRect(0,0,width,height); ctx.strokeStyle = 'white'; ctx.lineWidth = 2;
+                for(let i=0; i<width; i+=50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + Math.sin(time*0.05 + i*0.01)*100, height); ctx.stroke(); }
+            } else if(currentDimension===2) { // Dormammu
+                ctx.fillStyle = 'rgba(20, 0, 30, 0.4)'; ctx.fillRect(0, 0, width, height);
+                for(let i=20; i>0; i--) {
+                    ctx.beginPath(); ctx.arc(width/2, height/2, Math.max(1, i*40 + Math.sin(time*0.05 + i)*30), 0, Math.PI*2);
+                    ctx.strokeStyle = i%2===0 ? '#8a2be2' : '#00ff7f'; ctx.lineWidth = 10; ctx.stroke();
+                }
+            } else { // Gojo Void
+                ctx.fillStyle = 'rgba(0,0,15,0.3)'; ctx.fillRect(0,0,width,height);
+                ctx.beginPath(); ctx.arc(width/2, height/2, 50 + Math.sin(time*0.1)*10, 0, Math.PI*2); ctx.fillStyle='black'; ctx.fill();
+            }
+            time++; requestAnimationFrame(drawDimension);
+        }
+        drawDimension();
+
+        // --- SCENE 1: MIC LOGIC ---
+        let micActive = false;
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+            let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            let analyser = audioContext.createAnalyser();
+            let microphone = audioContext.createMediaStreamSource(stream);
+            microphone.connect(analyser); analyser.fftSize = 256;
+            let dataArray = new Uint8Array(analyser.frequencyBinCount);
+            function detectBlow() {
+                analyser.getByteFrequencyData(dataArray);
+                let average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+                if (average > 60) extinguishCandles(); else requestAnimationFrame(detectBlow);
+            }
+            detectBlow();
+        }).catch(() => {
+            document.getElementById('mic-instruction').innerText = "Mic blocked!";
+            document.getElementById('blow-btn-fallback').style.display = 'inline-block';
+        });
+
+        function extinguishCandles() {
+            if(micActive) return; micActive = true;
+            document.querySelectorAll('.flame').forEach(f => f.classList.add('extinguished'));
+            document.getElementById('mic-instruction').innerText = "Yay! 🎊";
+            setTimeout(() => {
+                document.getElementById('scene-1').classList.remove('active-scene');
+                document.getElementById('scene-2').classList.add('active-scene');
+            }, 1500);
+        }
+
+        // --- SCENE NAVIGATION ---
+        function goToScene3() {
+            document.getElementById('scene-2').classList.remove('active-scene');
+            document.getElementById('scene-3').classList.add('active-scene');
+            setTimeout(() => { document.getElementById('curtain-container').classList.add('open'); }, 500);
+        }
+        function goToScene4() {
+            document.getElementById('scene-3').classList.remove('active-scene');
+            document.getElementById('scene-4').classList.add('active-scene');
+            startAmongUsGame();
+        }
+
+        // --- SCENE 3: 3D DRAG CAROUSEL ---
+        const carousel = document.getElementById('carousel');
+        let isDragging = false, startX, currentRotate = 0;
+        
+        // Touch events for mobile
+        document.getElementById('scene-3').addEventListener('touchstart', (e) => { isDragging = true; startX = e.touches[0].clientX; });
+        document.getElementById('scene-3').addEventListener('touchmove', (e) => {
+            if(!isDragging) return;
+            let delta = e.touches[0].clientX - startX;
+            carousel.style.transform = `rotateY(${currentRotate + delta}deg)`;
+        });
+        document.getElementById('scene-3').addEventListener('touchend', (e) => {
+            if(!isDragging) return; isDragging = false;
+            let delta = e.changedTouches[0].clientX - startX; currentRotate += delta;
+        });
+
+        // Mouse events for PC
+        document.getElementById('scene-3').addEventListener('mousedown', (e) => { isDragging = true; startX = e.clientX; });
+        document.getElementById('scene-3').addEventListener('mousemove', (e) => {
+            if(!isDragging) return;
+            let delta = e.clientX - startX;
+            carousel.style.transform = `rotateY(${currentRotate + delta}deg)`;
+        });
+        document.getElementById('scene-3').addEventListener('mouseup', (e) => {
+            if(!isDragging) return; isDragging = false;
+            let delta = e.clientX - startX; currentRotate += delta;
+        });
+
+        // --- SCENE 4: AMONG US MINIGAME ---
+        let gameScore = 0; let gameActive = false;
+        function startAmongUsGame() {
+            gameActive = true; spawnAsteroid();
+        }
+        function spawnAsteroid() {
+            if(!gameActive) return;
+            const area = document.getElementById('game-area');
+            const ast = document.createElement('div');
+            ast.className = 'asteroid';
+            ast.style.left = Math.random() * (area.clientWidth - 50) + 'px';
+            ast.style.top = '-50px';
+            area.appendChild(ast);
+
+            let pos = -50;
+            let speed = Math.random() * 3 + 2;
+            let interval = setInterval(() => {
+                pos += speed; ast.style.top = pos + 'px';
+                if(pos > area.clientHeight) { clearInterval(interval); ast.remove(); }
+            }, 20);
+
+            // Destroy on click or touch
+            const destroy = (e) => {
+                e.preventDefault(); // prevent double firing on touch
+                clearInterval(interval);
+                ast.style.background = 'red';
+                setTimeout(() => ast.remove(), 100);
+                gameScore++;
+                document.getElementById('score').innerText = gameScore;
+                if(gameScore >= 10) {
+                    gameActive = false;
+                    document.querySelector('.chat-text').innerText = "TASK COMPLETED! SUS ඞ";
+                    document.querySelector('.chat-text').style.color = "#0f0";
+                }
+            };
+            ast.addEventListener('mousedown', destroy);
+            ast.addEventListener('touchstart', destroy);
+
+            if(gameScore < 10) { setTimeout(spawnAsteroid, Math.random() * 1000 + 500); }
+        }
+    </script>
+</body>
+</html>
