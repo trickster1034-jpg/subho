@@ -101,7 +101,6 @@ h1 { font-family: 'Cinzel', serif; font-size: 3.5em; color: #ffae00; text-shadow
 #target-square {
     position: absolute; width: 250px; height: 250px; border: 2px solid rgba(0, 255, 0, 0.6); background: rgba(0, 255, 0, 0.05);
     transform: translate(-50%, -50%); z-index: 2; pointer-events: none; box-shadow: 0 0 30px rgba(0,255,0,0.2), inset 0 0 20px rgba(0,255,0,0.2);
-    transition: left 0.1s ease-out, top 0.1s ease-out;
 }
 
 /* 4. RETRO SCANLINES ADDED HERE */
