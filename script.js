@@ -1,211 +1,108 @@
-const canvas = document.getElementById('multiverse-canvas');
-const ctx = canvas.getContext('2d');
-let width, height, time = 0, currentDimension = 0;
-
-function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-window.addEventListener('resize', resize); resize();
-
-function drawWormhole() {
-    ctx.fillStyle = 'rgba(0, 0, 5, 0.3)'; ctx.fillRect(0,0,width,height);
-    ctx.save(); ctx.translate(width/2, height/2);
-    for(let i=0; i<100; i++) {
-        let angle = (i * 0.1) + (time * 0.01);
-        let radius = (i * 5) + Math.sin(time*0.05 + i)*50;
-        let x = Math.cos(angle) * radius;
-        let y = Math.sin(angle) * radius;
-        ctx.beginPath(); ctx.arc(x, y, i*0.05, 0, Math.PI*2);
-        ctx.fillStyle = `hsl(${200 + i + time}, 100%, 70%)`;
-        ctx.fill();
-    }
-    ctx.restore();
+body, html {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background-color: #000; color: white; overflow: hidden; 
+    text-align: center; user-select: none; touch-action: none;
+    font-family: 'Segoe UI', sans-serif;
 }
 
-function drawTear() {
-    ctx.fillStyle = 'rgba(10, 10, 10, 0.4)'; ctx.fillRect(0,0,width,height);
-    ctx.save(); ctx.translate(width/2, height/2);
-    for(let j=0; j<6; j++) {
-        ctx.rotate(Math.PI / 3);
-        ctx.beginPath(); ctx.moveTo(0, 0);
-        ctx.lineTo(Math.sin(time*0.02)*300, Math.cos(time*0.03)*300);
-        ctx.lineTo(Math.cos(time*0.01)*400, Math.sin(time*0.04)*400);
-        ctx.strokeStyle = `hsl(${time % 360}, 100%, 50%)`; ctx.lineWidth = 3; ctx.stroke();
-    }
-    ctx.restore();
+#multiverse-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+
+.scene {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 10; display: none; flex-direction: column; align-items: center; justify-content: center;
+}
+.active-scene { display: flex; }
+
+h1 { font-family: 'Cinzel', serif; font-size: 3.5em; color: #ffae00; text-shadow: 0 0 20px #ff6600, 0 0 40px #ff0000; z-index: 15; margin-bottom: 20px; }
+.threat { font-family: 'Permanent Marker', cursive; font-size: 2em; color: #ff2a2a; text-shadow: 2px 2px 5px black, 0 0 15px red; z-index: 15; transform: rotate(-3deg); margin-top: 20px; }
+
+.cake-container { position: relative; width: 200px; height: 150px; margin-top: 30px; }
+.cake { width: 200px; height: 100px; background: #f4c2c2; border-radius: 10px 10px 0 0; position: absolute; bottom: 0; border: 4px solid #fff; box-shadow: 0 0 30px rgba(255,255,255,0.5); z-index: 30; }
+.candle { width: 10px; height: 40px; background: repeating-linear-gradient(45deg, white, white 5px, red 5px, red 10px); position: absolute; bottom: 100px; border-radius: 5px; z-index: 30; }
+.c1 { left: 50px; } .c2 { left: 95px; } .c3 { left: 140px; }
+.flame { width: 15px; height: 25px; background: #ff9d00; border-radius: 50% 50% 20% 20%; position: absolute; top: -30px; left: -2px; animation: flicker 0.1s infinite alternate; box-shadow: 0 0 20px #ff9d00; }
+.extinguished { display: none; }
+#mic-instruction { font-size: 1.5em; margin-top: 30px; font-weight: bold; color: #00ffff; text-shadow: 0 0 10px #00ffff; z-index: 30;}
+@keyframes flicker { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.2); opacity: 0.8; } }
+
+/* --- PARTY VFX --- */
+.balloon {
+    position: absolute; width: 60px; height: 75px; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+    bottom: -100px; z-index: 20; animation: floatUp forwards; box-shadow: inset -10px -10px 15px rgba(0,0,0,0.3);
+}
+.balloon::before { content: ''; position: absolute; bottom: -8px; left: 26px; width: 8px; height: 10px; background: inherit; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+.balloon::after { content: ''; position: absolute; bottom: -40px; left: 29px; width: 2px; height: 40px; background: rgba(255,255,255,0.5); }
+@keyframes floatUp { to { transform: translateY(-120vh); } }
+
+.sprinkle { position: absolute; width: 8px; height: 8px; z-index: 20; animation: explode 1.5s cubic-bezier(0.1, 1, 0.3, 1) forwards; }
+@keyframes explode { to { transform: translate(var(--tx), var(--ty)) rotate(720deg); opacity: 0; } }
+
+.foam { position: absolute; width: 15px; height: 15px; background: #fff; border-radius: 50%; z-index: 15; animation: foamSpray 1.5s ease-out forwards; box-shadow: 0 0 15px rgba(255,255,255,0.9); }
+@keyframes foamSpray { to { transform: translate(var(--tx), var(--ty)) scale(15); opacity: 0; } }
+/* ----------------- */
+
+.floating-text { position: absolute; animation: floatCinematic 4s infinite ease-in-out alternate; }
+.floating-threat { position: absolute; animation: floatCinematic2 5s infinite ease-in-out alternate; }
+@keyframes floatCinematic { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-20px) scale(1.05); } }
+@keyframes floatCinematic2 { 0% { transform: translateY(0) rotate(-3deg); } 100% { transform: translateY(20px) rotate(1deg); } }
+.next-btn {
+    position: absolute; bottom: 10%; padding: 15px 40px; font-size: 20px; font-family: 'Cinzel', serif; cursor: pointer;
+    background: rgba(0,0,0,0.5); color: #ffae00; border: 2px solid #ffae00; box-shadow: 0 0 15px #ffae00;
+    font-weight: bold; z-index: 100; border-radius: 5px; transition: 0.3s;
 }
 
-function drawDark() {
-    ctx.fillStyle = 'rgba(15, 0, 20, 0.2)'; ctx.fillRect(0, 0, width, height);
-    ctx.beginPath();
-    for(let i=0; i<10; i++) {
-        let x1 = width/2 + Math.sin(time*0.02 + i)*300; let y1 = height/2 + Math.cos(time*0.03 + i)*300;
-        let cp1x = width/2 + Math.cos(time*0.04 - i)*500; let cp1y = height/2 + Math.sin(time*0.02 + i)*500;
-        let x2 = width/2 + Math.sin(time*0.01 + i*2)*400; let y2 = height/2 + Math.cos(time*0.05 + i*2)*400;
-        ctx.moveTo(width/2, height/2); ctx.quadraticCurveTo(cp1x, cp1y, x2, y2);
-    }
-    ctx.strokeStyle = '#9d00ff'; ctx.lineWidth = 2; ctx.stroke();
+.curtain-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; z-index: 50; pointer-events: none; }
+.curtain { width: 50%; height: 100%; background: #1a0000; border: 2px solid gold; transition: transform 2s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: inset 0 0 100px black; }
+.curtain.left { transform-origin: left; } .curtain.right { transform-origin: right; }
+.open .left { transform: translateX(-100%); } .open .right { transform: translateX(100%); }
+
+.scene3d { perspective: 1200px; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+
+.carousel { width: 0; height: 0; position: relative; transform-style: preserve-3d; transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+.center-glove { position: absolute; width: 100px; height: 100px; left: -50px; top: -50px; transform: rotateY(0deg); filter: drop-shadow(0 0 20px gold); z-index: -1; }
+
+.carousel img.photo { position: absolute; width: 220px; height: 220px; object-fit: cover; border: 4px solid gold; border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.9); backface-visibility: hidden; left: -110px; top: -110px; }
+.carousel img.photo:nth-of-type(1) { transform: rotateY(0deg) translateZ(250px); }
+.carousel img.photo:nth-of-type(2) { transform: rotateY(120deg) translateZ(250px); }
+.carousel img.photo:nth-of-type(3) { transform: rotateY(240deg) translateZ(250px); }
+.drag-hint { position: absolute; top: 10%; color: #fff; font-size: 1.2em; text-shadow: 0 0 10px #0ff; z-index: 60;}
+
+#game-bg { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle at center, #111, #000); z-index: 0; }
+#targeting-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+.target-line { stroke: rgba(0, 255, 0, 0.4); stroke-width: 3; stroke-dasharray: 10 5; animation: dash 1s linear infinite; }
+@keyframes dash { to { stroke-dashoffset: 20; } }
+
+#target-square {
+    position: absolute; width: 250px; height: 250px; border: 2px solid rgba(0, 255, 0, 0.6); background: rgba(0, 255, 0, 0.05);
+    transform: translate(-50%, -50%); z-index: 2; pointer-events: none; box-shadow: 0 0 30px rgba(0,255,0,0.2), inset 0 0 20px rgba(0,255,0,0.2);
+    transition: left 0.1s ease-out, top 0.1s ease-out;
 }
+.corner { position: absolute; width: 30px; height: 30px; border: 4px solid #0f0; }
+.tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+.tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+.bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+.br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+.crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; border: 2px solid rgba(0,255,0,0.6); }
+.crosshair::before { content: ''; width: 4px; height: 15px; background: rgba(0,255,0,0.6); position: absolute; top: -10px; left: 16px; }
+.crosshair::after { content: ''; width: 15px; height: 4px; background: rgba(0,255,0,0.6); position: absolute; left: -10px; top: 16px; }
 
-function drawDimension() {
-    if(currentDimension===0) drawWormhole();
-    else if(currentDimension===1) drawTear();
-    else drawDark();
-    time++; requestAnimationFrame(drawDimension);
+.asteroid {
+    position: absolute; width: 60px; height: 60px; background: #5a5a5a;
+    clip-path: polygon(30% 0%, 70% 10%, 100% 40%, 80% 90%, 40% 100%, 0% 70%, 10% 20%);
+    box-shadow: inset -10px -10px 20px rgba(0,0,0,0.8); z-index: 5; cursor: crosshair; pointer-events: auto;
 }
-drawDimension();
+.bomb {
+    position: absolute; width: 50px; height: 50px; background: radial-gradient(circle, #ff4444, #880000);
+    border-radius: 50%; border: 3px solid #ff0000; box-shadow: 0 0 20px red; z-index: 5; cursor: pointer; pointer-events: auto;
+}
+.bomb::before { content: ''; position: absolute; top: -10px; left: 20px; width: 10px; height: 15px; background: #333; }
 
-window.addEventListener('click', (e) => {
-    if (document.getElementById('scene-2').classList.contains('active-scene') && e.target.tagName !== 'BUTTON') {
-        currentDimension = (currentDimension + 1) % 3; time = 0;
-    }
-});
+.destroyed-text { position: absolute; bottom: 20px; left: 20px; font-family: 'Press Start 2P', monospace; font-size: 16px; color: white; z-index: 100; text-shadow: 2px 2px 0 #000; pointer-events: none; }
+.chat-text { position: absolute; bottom: 5%; width: 100%; text-align: center; color: #fff; font-family: 'Press Start 2P', monospace; font-size: 18px; text-shadow: 2px 2px 0 #000; z-index: 100; pointer-events: none;}
+#interactive-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; cursor: crosshair; }
 
-let micActive = false;
-navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
-    let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    let analyser = audioContext.createAnalyser();
-    let microphone = audioContext.createMediaStreamSource(stream);
-    microphone.connect(analyser); analyser.fftSize = 256;
-    let dataArray = new Uint8Array(analyser.frequencyBinCount);
-    function detectBlow() {
-        analyser.getByteFrequencyData(dataArray);
-        let average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-        if (average > 25) extinguishCandles(); 
-        else requestAnimationFrame(detectBlow);
-    }
-    detectBlow();
-}).catch(() => {
-    document.getElementById('mic-instruction').innerText = "Mic blocked! Tap cake to blow.";
-    document.querySelector('.cake-container').addEventListener('click', extinguishCandles);
-});
-
-function extinguishCandles() {
-    if(micActive) return; micActive = true;
-    document.querySelectorAll('.flame').forEach(f => f.classList.add('extinguished'));
-    document.getElementById('mic-instruction').innerText = "Reality Warping... 🌌";
+#jumpscare {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;
+    background: url('https://i.postimg.cc/dt0kK8FC/IMG-20260725-WA0012.jpg') center/cover no-repeat; display: none;
+                 }
     
-    // Start the looping sound continuously
-    const sound = document.getElementById('bg-sound');
-    sound.play().catch(e => console.log("Audio blocked by browser:", e));
-
-    setTimeout(() => {
-        document.getElementById('scene-1').classList.remove('active-scene');
-        document.getElementById('scene-2').classList.add('active-scene');
-    }, 2000);
-}
-
-function goToScene3() {
-    // Just change the scene, audio continues looping naturally
-    document.getElementById('scene-2').classList.remove('active-scene');
-    document.getElementById('scene-3').classList.add('active-scene');
-    setTimeout(() => { document.getElementById('curtain-container').classList.add('open'); }, 500);
-}
-
-function goToScene4() {
-    document.getElementById('scene-3').classList.remove('active-scene');
-    document.getElementById('scene-4').classList.add('active-scene');
-    initAmongUsGame();
-}
-
-const carousel = document.getElementById('carousel');
-let isDragging = false, startX, currentRotate = 0;
-
-function handleDragStart(clientX) { isDragging = true; startX = clientX; carousel.style.transition = 'none'; }
-function handleDragMove(clientX) {
-    if(!isDragging) return;
-    let delta = (clientX - startX) * 0.5; 
-    carousel.style.transform = `rotateX(0deg) rotateY(${currentRotate + delta}deg) rotateZ(0deg)`;
-}
-function handleDragEnd(clientX) {
-    if(!isDragging) return; isDragging = false;
-    currentRotate += (clientX - startX) * 0.5;
-    carousel.style.transition = 'transform 0.3s ease-out';
-}
-
-const dragArea = document.getElementById('drag-area');
-dragArea.addEventListener('touchstart', (e) => handleDragStart(e.touches[0].clientX));
-dragArea.addEventListener('touchmove', (e) => handleDragMove(e.touches[0].clientX));
-dragArea.addEventListener('touchend', (e) => handleDragEnd(e.changedTouches[0].clientX));
-dragArea.addEventListener('mousedown', (e) => handleDragStart(e.clientX));
-window.addEventListener('mousemove', (e) => handleDragMove(e.clientX));
-window.addEventListener('mouseup', (e) => handleDragEnd(e.clientX));
-
-let targetX = window.innerWidth / 2;
-let targetY = window.innerHeight / 2;
-const targetSquare = document.getElementById('target-square');
-const l_tl = document.getElementById('line-tl'), l_tr = document.getElementById('line-tr');
-const l_bl = document.getElementById('line-bl'), l_br = document.getElementById('line-br');
-const sqSize = 125; 
-
-function updateLines() {
-    let w = window.innerWidth, h = window.innerHeight;
-    targetSquare.style.left = targetX + 'px';
-    targetSquare.style.top = targetY + 'px';
-    
-    l_tl.setAttribute('x1', 0); l_tl.setAttribute('y1', 0);
-    l_tl.setAttribute('x2', targetX - sqSize); l_tl.setAttribute('y2', targetY - sqSize);
-    
-    l_tr.setAttribute('x1', w); l_tr.setAttribute('y1', 0);
-    l_tr.setAttribute('x2', targetX + sqSize); l_tr.setAttribute('y2', targetY - sqSize);
-    
-    l_bl.setAttribute('x1', 0); l_bl.setAttribute('y1', h);
-    l_bl.setAttribute('x2', targetX - sqSize); l_bl.setAttribute('y2', targetY + sqSize);
-    
-    l_br.setAttribute('x1', w); l_br.setAttribute('y1', h);
-    l_br.setAttribute('x2', targetX + sqSize); l_br.setAttribute('y2', targetY + sqSize);
-}
-
-const interactionLayer = document.getElementById('interactive-layer');
-interactionLayer.addEventListener('pointermove', (e) => {
-    targetX = e.clientX; targetY = e.clientY; updateLines();
-});
-interactionLayer.addEventListener('pointerdown', (e) => {
-    targetX = e.clientX; targetY = e.clientY; updateLines();
-});
-
-let gameScore = 0; let gameActive = false;
-function initAmongUsGame() {
-    gameActive = true; updateLines(); spawnEntity();
-}
-
-function spawnEntity() {
-    if(!gameActive) return;
-    const isBomb = Math.random() < 0.2; 
-    const el = document.createElement('div');
-    el.className = isBomb ? 'bomb' : 'asteroid';
-    
-    let startXPos = Math.random() * (window.innerWidth - 60);
-    el.style.left = startXPos + 'px';
-    el.style.top = '-60px';
-    document.getElementById('scene-4').appendChild(el);
-
-    let posY = -60, posX = startXPos, rotation = 0;
-    let speedY = Math.random() * 3 + 2, speedX = (Math.random() - 0.5) * 4;
-
-    let interval = setInterval(() => {
-        posY += speedY; posX += speedX; rotation += 2;
-        el.style.top = posY + 'px'; el.style.left = posX + 'px'; el.style.transform = `rotate(${rotation}deg)`;
-        if(posY > window.innerHeight + 100) { clearInterval(interval); el.remove(); }
-    }, 20);
-
-    el.addEventListener('pointerdown', (e) => {
-        e.stopPropagation(); clearInterval(interval);
-        
-        if (isBomb) {
-            document.getElementById('jumpscare').style.display = 'block';
-            setTimeout(() => { document.getElementById('jumpscare').style.display = 'none'; }, 2000);
-            el.remove();
-        } else {
-            el.style.background = '#0f0';
-            setTimeout(() => el.remove(), 50);
-            gameScore++;
-            document.getElementById('score').innerText = gameScore;
-            if(gameScore >= 10) {
-                gameActive = false;
-                document.querySelector('.chat-text').innerText = "TASK COMPLETED! SUS ඞ";
-                document.querySelector('.chat-text').style.color = "#0f0";
-            }
-        }
-    });
-
-    if(gameScore < 10) setTimeout(spawnEntity, Math.random() * 800 + 400);
-}
