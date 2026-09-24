@@ -231,15 +231,23 @@ function spawnEntity() {
     el.addEventListener('pointerdown', (e) => {
         e.stopPropagation(); clearInterval(interval);
         
-        if (isBomb) {
-            // Play Jumpscare Sound
+                if (isBomb) {
+            // Force Jumpscare Sound to play at max volume
             const jumpSound = document.getElementById('jumpscare-sound');
-            if(jumpSound) { jumpSound.currentTime = 0; jumpSound.play(); }
+            if (jumpSound) { 
+                jumpSound.volume = 1.0; 
+                jumpSound.currentTime = 0; 
+                let playPromise = jumpSound.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => console.log("Jumpscare audio blocked by phone:", e));
+                }
+            }
             
             document.getElementById('jumpscare').style.display = 'block';
             setTimeout(() => { document.getElementById('jumpscare').style.display = 'none'; }, 2000);
             el.remove();
         } else {
+                    
             el.style.background = '#0f0';
             setTimeout(() => el.remove(), 50);
             gameScore++;
