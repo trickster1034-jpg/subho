@@ -138,10 +138,17 @@ function goToScene3() {
 }
 
 function goToScene4() {
+    const bgSound = document.getElementById('bg-sound');
+    if (bgSound) {
+        bgSound.pause();
+        bgSound.currentTime = 0;
+    }
+
     document.getElementById('scene-3').classList.remove('active-scene');
     document.getElementById('scene-4').classList.add('active-scene');
     initAmongUsGame();
 }
+
 
 const carousel = document.getElementById('carousel');
 let isDragging = false, startX, currentRotate = 0;
